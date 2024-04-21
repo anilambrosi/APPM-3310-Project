@@ -27,4 +27,4 @@ def power_method(A: np.ndarray[np.float32], num_ierations: int) -> np.ndarray[np
 
   return r
 
-
+  # test
