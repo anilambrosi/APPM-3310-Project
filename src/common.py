@@ -1,12 +1,10 @@
 # utils for cleaning/loading data
 
-from csv import reader as csv_reader
 import re
-import math
 import numpy as np
+from csv import reader as csv_reader
 from io import StringIO
-
-sgn = lambda n: math.copysign(1, n)
+from functools import cmp_to_key
 
 class Csv:
   def __init__(self, path: str):
@@ -26,3 +24,7 @@ def power_method(A: np.ndarray[np.float32], num_ierations: int) -> np.ndarray[np
     r /= np.linalg.norm(r)
 
   return r
+
+def sort_by_rank(teams: list[str], rank_vec: np.ndarray[np.float32]) -> list[tuple[str, float]]:
+  couple = zip(teams, rank_vec)
+  return sorted(couple, key=cmp_to_key(lambda a, b: b[1] - a[1]))
