@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 def main():
   csv = Csv('../data/games.csv')
 
+  print(len(csv.data))
+
   # config
   pref_method = PrefMethod.NONLINEAR
   power_iterations = 100
@@ -34,10 +36,10 @@ def main():
   im = ax.imshow(R, cmap=cmaps['bone'])
   fig.colorbar(im, ax=ax)
   disp_ranks(team_ranks_linear, title='Eigenvector Ranking (Keener 1993)')
-  disp_ranks(team_ranks_nonlinear, title='Nonlinear Eigenvector Ranking (Keener 1993)')
+  disp_ranks(team_ranks_nonlinear, title='Nonlinear Ranking (Keener 1993)')
   plt.show()
 
-  for team, rank in team_ranks[:20]:
+  for team, rank in team_ranks_linear[:20]:
     print(f'{team}: {rank}')
 
 if __name__ == '__main__':

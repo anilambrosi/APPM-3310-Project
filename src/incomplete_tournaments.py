@@ -32,7 +32,7 @@ def main():
   ax.set_title('Rank Matrix')
   im = ax.imshow(P, cmap=cmaps['viridis'])
   fig.colorbar(im, ax=ax)
-  disp_ranks(team_ranks, title='Probability-based Ranking (Jech 1983)')
+  disp_ranks(team_ranks, title='Probability Ranking (Jech 1983)')
   plt.show()
 
   for team, rank in team_ranks[:20]:

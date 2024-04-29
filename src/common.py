@@ -42,17 +42,17 @@ class Csv:
 
 # PREFERENCE / RESULT MATRICES
 
-calc_pref_interpolate = lambda si, sj: si / (si + sj)
-calc_pref_interpolate_offset = lambda si, sj: calc_pref_interpolate(si + 1, sj + 1)
+calc_pref_interpolate = lambda si, sj: si / (si + sj) # find a_{ij}
+calc_pref_interpolate_offset = lambda si, sj: calc_pref_interpolate(si + 1, sj + 1) # find a_{ij}
 
-def calc_pref_discrete(si: int, sj: int) -> float:
+def calc_pref_discrete(si: int, sj: int) -> float: # find a_{ij}
   if si == sj:
     return 0.5
   elif si > sj:
     return 1
   return 0
 
-def calc_pref_nonlinear(si: int, sj: int) -> float:
+def calc_pref_nonlinear(si: int, sj: int) -> float: # find a_{ij}
   x = calc_pref_interpolate_offset(si, sj)
   return 0.5 + 0.5 * copysign(1, x - 0.5) * sqrt(fabs(2 * x - 1))
 
@@ -110,8 +110,8 @@ def power_method(A: mat_f32, num_ierations: int) -> vec_f32:
   r = np.random.rand(A.shape[1])
   
   for _ in range(num_ierations):
-    r = A @ r
-    r /= np.linalg.norm(r)
+    r = A @ r # multiply r by A
+    r /= np.linalg.norm(r) # normalize the result
 
   return r
 
@@ -119,9 +119,10 @@ def power_method_nonlinear(E: mat_f32, M: mat_f32, f: Callable[[float], float], 
   r = np.random.rand(E.shape[1])
   f_vec = np.vectorize(f)
   games_played = M @ np.ones(M.shape[1])
-  
+
+  # repeatedly apply the F transformation to approximate its fixed point
   for _ in range(num_iterations):
-    r = np.divide(f_vec(E @ r), games_played)
+    r = np.divide(f_vec(E @ r), games_played) 
   
   return r
 
@@ -129,21 +130,25 @@ def sort_by_rank(teams: list[str], r: vec_f32) -> list[tuple[str, float]]:
   couple = zip(teams, r)
   return sorted(couple, key=cmp_to_key(lambda a, b: b[1] - a[1]))
 
-def make_rank_matrix(v: vec_f32) -> mat_f32:
+# find rank matrix P given a probability vector v
+def make_rank_matrix(v: vec_f32) -> mat_f32: 
   V = np.repeat([v], repeats=[v.shape[0]], axis=0)
   return np.power(1 + np.exp(V - np.transpose(V)), -1)
 
-def make_v_basis(M: mat_f32) -> mat_f32:
+# create a basis V for the probability vector space
+def make_v_basis(M: mat_f32) -> mat_f32: 
   n = M.shape[0] - 1
   top = np.full(n, -1, dtype=np.float32)
   return np.vstack([top, np.eye(n)])
 
-def apply_T(v: vec_f32, s: vec_f32, M: mat_f32) -> vec_f32:
+# apply the nonlinear T transformation to a probability vector v
+def apply_T(v: vec_f32, s: vec_f32, M: mat_f32) -> vec_f32: 
   P = make_rank_matrix(v)
   F = np.dot(np.multiply(M, P), np.ones_like(v))
   return v + s - F
 
-def fixed_point_approx(R: mat_f32, M: mat_f32, num_iterations: int) -> vec_f32:
+# approximate the fixed point of T
+def fixed_point_approx(R: mat_f32, M: mat_f32, num_iterations: int) -> vec_f32: 
   V = make_v_basis(M)
   v = V @ np.random.rand(V.shape[1])
   s = R @ np.ones_like(v)
@@ -153,14 +158,19 @@ def fixed_point_approx(R: mat_f32, M: mat_f32, num_iterations: int) -> vec_f32:
 
   return v
 
-def disp_ranks(team_ranks: list[tuple[str, float]], title: str):
+# display teams and ranks in a table
+def disp_ranks(team_ranks: list[tuple[str, float]], title: str): 
   fig, ax = plt.subplots()
   plt.rcParams['font.family'] = 'monospace'
   table = ax.table(
     cellText = np.asarray(team_ranks[:15]),
     loc = 'center',
     colLabels = ['Team', 'Rank'])
-  table.scale(0.7, 1.5)
-  table.set_fontsize(12)
+  table.scale(1, 1.5)
+  table.set_fontsize(13)
+  table.auto_set_column_width(col=[0,1])
+  table.auto_set_font_size(False)
   ax.axis('off')
   ax.set_title(title, pad=20)
+  fig.tight_layout()
+  fig.set_size_inches(5.25, 4.5)
